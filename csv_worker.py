@@ -11,8 +11,7 @@ def get_csv_files(input_dir, suffix=".csv"):
     Scan the input directory and return a list containing all the .csv files
     found there.
 
-    :input: a directory containing input files
-            suffix of the input files (by default set to ".csv")
+    :rtype: list
     :return: list containing the csv files in input_dir (full path)
     """
     
@@ -22,27 +21,48 @@ def get_csv_files(input_dir, suffix=".csv"):
 
 def not_empty(line):
     """
-    Return false if line (a list) is filled with spaces or 'nothings'
+    Check if line is filled with whitespaces
+    
+    :rtype: Boolean
+    :return: True - line not empty
+             False - line is empty
     """
     for word in line:
         if word: return True
     return False
 
 def not_on_blacklist(name, black_list):
+    """
+    Check if the name is on the blacklist
+
+    :type name: str
+    :param name: string to check
+
+    :type black_list: list of str
+    :param black_list: list of strings to check against
+
+    :rtype: Boolean
+    :return: True - if name not in black_list 
+                     or blacklist entry not contained in name
+             False - otherwise        
+    """
     if name not in black_list:
         for bad_name in black_list:
             if bad_name in name:
                 return False
     return True
 
-def work_csv(infile):
-    # add cols
-    infile_name, infile_extn = os.path.splitext(infile)
-    outfile = infile_name+'_COLLS_ADDED.csv'
-    new_col_vals = infile_name.split('_')
+def add_cols(input_file, output_file):
+    """
+    Parse file name and add four columns to the file with the parsed info
+    
+    :rtype: str
+    :return: absolute path to modified file
+    """
+    new_col_vals = input_file_name.split('_')
     new_col_vals[2] = new_col_vals[2].split()[1] # remove 'Pass '
-    with open(infile) as read_handler:
-        with open(outfile, 'w') as write_handler:
+    with open(input_file) as read_handler:
+        with open(output_file, 'w') as write_handler:
             reader = csv.reader(read_handler)
             writer = csv.writer(write_handler)
             headers = reader.next()
@@ -51,30 +71,43 @@ def work_csv(infile):
             for line in reader: 
                 if not_empty(line):
                     writer.writerow(new_col_vals+line)
-    added_cols = os.path.abspath(outfile)
+    return os.path.abspath(out_file)
 
-    # remove duplicates
-    no_dupls = added_cols
-    no_dupls_name, no_dupls_ext = os.path.splitext(no_dupls)
 
-    # filter blacklist
-    no_dupls_blacklist = no_dupls_name + '_BLACKLIST' + no_dupls_ext
+def merge_files(input_dir, output_file):
+    """
+    Scan input dir and merge all csv files found into a master spreadsheet
+
+
+    :type input_dir: str
+    :param input_dir: Path to input directory (path must exist)
+
+    :type output_file: str
+    :param output_file: Absolute path and name of output file
+
+    :rtype: str
+    :return: absolute path to master spreadsheet
+    """
+    pass
+
+def remove_duplicate_lines(input_file, output_file):
+    pass
+
+def filter_blacklist(input_file, output_file, blacklist_header='Blacklist'):
     with open(BLACKLIST) as black_handle:
         black_list = [line.strip() for line in black_handle 
-                      if 'Blacklist' not in line]
-        print black_list
-        with open(no_dupls) as ndh:
-            with open(no_dupls_blacklist, 'w') as ndbh:
-                reader = csv.reader(ndh)
-                writer = csv.writer(ndbh)
+                      if blacklist_header not in line]
+        with open(input_file) as in_handle:
+            with open(output_file, 'w') as out_handle:
+                reader = csv.reader(in_handle)
+                writer = csv.writer(out_handle)
                 for line in reader:
                     name = line[4]
                     if not_on_blacklist(name, black_list):
                         writer.writerow(line)
-                    
-    return (added_cols, no_dupls, no_dupls_blacklist)
+    return os.path.abspath(blacklist_filtered)
 
 if __name__ == "__main__":
-
-    infile = '13_MD_Pass 1_RedHerring.csv'
-    print(work_csv(infile))
+    input_file_name, input_file_extn = os.path.splitext(input_file)
+    output_file = input_file_name+'_COLLS_ADDED.csv'
+    
