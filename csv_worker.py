@@ -2,7 +2,6 @@
 
 import csv
 import os
-import sys
 import traceback
 
 NEW_COLS = ['Job', 'AA', 'Pass', 'List']
