@@ -246,6 +246,9 @@ def csv_worker(input_dir, blacklist_file, output_dir=None):
     if not filtered_nodup: exit(1)
     return (master_csv, nodup_master, filtered_nodup)
     
+    
+    
 if __name__ == "__main__":
     print csv_worker('../in/', '../BLACKLIST.csv', 'out')
+
 
